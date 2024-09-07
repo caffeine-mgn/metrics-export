@@ -20,18 +20,18 @@ import pw.binom.url.toURL
 import kotlin.coroutines.coroutineContext
 
 class PodProviderService {
+    companion object {
+        const val ENABLE_ANNOTATION = "metric.binom.pw/enabled"
+        const val URI_ANNOTATION = "metric.binom.pw/url"
+        const val PROTO_ANNOTATION = "metric.binom.pw/proto"
+        const val METHOD_ANNOTATION = "metric.binom.pw/method"
+    }
+
     private val httpClient by inject<HttpClient>()
 
-    //    private val url = run {
-//        val host = Environment.getEnv("KUBERNETES_SERVICE_HOST")!!
-//        val port = Environment.getEnv("KUBERNETES_SERVICE_PORT_HTTPS")!!.toInt()
-//        "https://$host:$port/".toURL()
-//    }
+
     private val kubernetesClient by inject<KubernetesClient>()
 
-    //    private val token by BeanLifeCycle.afterInit {
-//        File("/var/run/secrets/kubernetes.io/serviceaccount/token").readText()
-//    }
     private val nameSpace by BeanLifeCycle.afterInit {
         File("/var/run/secrets/kubernetes.io/serviceaccount/namespace").readText()
     }
@@ -39,33 +39,30 @@ class PodProviderService {
         File("/etc/hostname").readText().trim()
     }
 
-    suspend fun getMetrics(a: AsyncMetricVisitor) {
+    suspend fun getMetrics(visitor: AsyncMetricVisitor) {
         kubernetesClient.getPods(nameSpace = nameSpace)
-            .filter { it.metadata.annotations["metric.binom.pw/enabled"]=="true" }
+            .filter { it.metadata.annotations[ENABLE_ANNOTATION] == "true" }
             .map { pod ->
-                val path = pod.metadata.annotations["metric.binom.pw/url"]?:":9090/metrics"
-            GlobalScope.launch(coroutineContext) {
-                httpClient.connect(
-                    method = "GET",
-                    uri = "http://${pod.status.podIP}$path".toURL()
-                ).getResponse().useAsync {
-                    it.readText().useAsync {
-                        PrometheusReader.read(
-                            reader = it,
-                            visitor = WithFieldAsyncMetricVisitor(
-                                name = "pod",
-                                value = pod.metadata.name,
-                                visitor = a
+                val proto = pod.metadata.annotations[PROTO_ANNOTATION] ?: "http"
+                val path = pod.metadata.annotations[URI_ANNOTATION] ?: ":9090/metrics"
+                val method = pod.metadata.annotations[METHOD_ANNOTATION] ?: "GET"
+                GlobalScope.launch(coroutineContext) {
+                    httpClient.connect(
+                        method = method,
+                        uri = "$proto://${pod.status.podIP}$path".toURL()
+                    ).getResponse().useAsync { resp ->
+                        resp.readText().useAsync { metricText ->
+                            PrometheusReader.read(
+                                reader = metricText,
+                                visitor = WithFieldAsyncMetricVisitor(
+                                    name = "pod",
+                                    value = pod.metadata.name,
+                                    visitor = visitor
+                                )
                             )
-                        )
+                        }
                     }
                 }
-            }
-        }.toList().joinAll()
+            }.toList().joinAll()
     }
-
-//    init {
-//        BeanLifeCycle.postConstruct {
-//        }
-//    }
 }
