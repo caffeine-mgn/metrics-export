@@ -30,7 +30,7 @@ open class DockerPackJvm : BasicDockerPlugin() {
         }
 
         createDockerfileTask.configure {
-            it.from("bellsoft/liberica-openjdk-alpine:17.0.4-8")
+            it.from("bellsoft/liberica-openjdk-alpine:21.0.5")
             it.copyFile(linuxTask.archiveFileName.get(), "/app/binary.jar")
             it.exposePort(8080)
             it.exposePort(8081)

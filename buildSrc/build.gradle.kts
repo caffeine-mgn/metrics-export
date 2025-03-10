@@ -46,6 +46,6 @@ dependencies {
     api("org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion")
     api("org.jetbrains.kotlin:kotlin-noarg:$kotlinVersion")
 //    api("pw.binom.static-css:plugin:0.1.32")
-    api("com.bmuschko:gradle-docker-plugin:6.4.0")
+    api("com.bmuschko:gradle-docker-plugin:9.4.0")
 //    api("pw.binom:binom-publish:0.1.6")
 }

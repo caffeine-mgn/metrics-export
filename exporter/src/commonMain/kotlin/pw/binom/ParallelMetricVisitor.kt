@@ -2,7 +2,8 @@ package pw.binom
 
 import pw.binom.coroutines.SimpleAsyncLock
 import pw.binom.io.AsyncWriter
-import pw.binom.metric.prometheus.AsyncMetricVisitor
+import pw.binom.metric.AsyncMetricVisitor
+import pw.binom.metric.MetricType
 import pw.binom.metric.prometheus.AsyncMetricWriter
 
 class WithFieldAsyncMetricVisitor(
@@ -21,16 +22,17 @@ class WithFieldAsyncMetricVisitor(
         visitor.field(name, value)
     }
 
-    override suspend fun help(text: String) {
-        visitor.help(text)
+    override suspend fun help(name: String, text: String) {
+        visitor.help(name = name, text = text)
     }
+
 
     override suspend fun start(name: String) {
         visitor.start(name)
     }
 
-    override suspend fun type(text: String) {
-        visitor.type(text)
+    override suspend fun type(name: String, type: MetricType) {
+        visitor.type(name = name, type = type)
     }
 
     override suspend fun value(value: String) {
@@ -51,8 +53,8 @@ class ParallelMetricVisitor(writer: AsyncWriter) : AsyncMetricVisitor {
         writer.field(name, value)
     }
 
-    override suspend fun help(text: String) {
-        writer.help(text)
+    override suspend fun help(name: String, text: String) {
+        writer.help(metricName = name, text = text)
     }
 
     override suspend fun start(name: String) {
@@ -60,8 +62,8 @@ class ParallelMetricVisitor(writer: AsyncWriter) : AsyncMetricVisitor {
         writer.start(name)
     }
 
-    override suspend fun type(text: String) {
-        writer.type(text)
+    override suspend fun type(name: String, type: MetricType) {
+        writer.type(metricName = name, type = type)
     }
 
     override suspend fun value(value: String) {

@@ -12,7 +12,7 @@ import pw.binom.io.file.File
 import pw.binom.io.file.readText
 import pw.binom.io.httpClient.HttpClient
 import pw.binom.io.useAsync
-import pw.binom.metric.prometheus.AsyncMetricVisitor
+import pw.binom.metric.AsyncMetricVisitor
 import pw.binom.metric.prometheus.PrometheusReader
 import pw.binom.strong.BeanLifeCycle
 import pw.binom.strong.inject
