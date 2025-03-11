@@ -9,7 +9,7 @@ open class HelmPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val helmDir = project.buildFile.parentFile.resolve("helm")
         val stageHelm = helmDir.resolve("stage")
-        val tlHelm = helmDir.resolve("yandex")
+        val tlHelm = helmDir.resolve("metric-exporter")
 //        val stageDependencyUpdate = project.tasks.register("stageDependencyUpdate", HelmDependencyUpdate::class.java) {
 //            it.directory.set(stageHelm)
 //            it.config()
@@ -53,7 +53,7 @@ open class HelmPlugin : Plugin<Project> {
         val tlPackage =
             project.tasks.register("tlPackage", HelmPackage::class.java) {
                 it.directory.set(tlHelm)
-                it.helmProject.set("yandex")
+                it.helmProject.set("metric-exporter")
             }
         val helmUploadTask =
             project.tasks.register("helmUpload", HelmUpload::class.java) {

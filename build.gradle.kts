@@ -1,3 +1,5 @@
+import org.tlsys.helm.HelmPlugin
+
 plugins {
 //  kotlin("multiplatform") version "1.9.24" apply false
 }
@@ -9,3 +11,5 @@ allprojects {
     mavenCentral()
   }
 }
+
+plugins.apply(HelmPlugin::class.java)
